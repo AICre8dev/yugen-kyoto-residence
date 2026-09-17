@@ -22,7 +22,7 @@ export function buildWorld(): World {
   // ---------- materials ----------
   const plasterTex = T.plasterTexture();
   const plaster = new THREE.MeshStandardMaterial({ map: plasterTex, color: '#cbb08a', roughness: 0.95 });
-  const plasterDark = new THREE.MeshStandardMaterial({ map: T.plasterTexture('#a8886a'), color: '#cdb392', roughness: 0.95 });
+  const plasterDark = new THREE.MeshStandardMaterial({ map: T.plasterTexture('#a8886a'), color: '#c9b49a', roughness: 0.95 });
   const woodTex = T.woodTexture();
   const wood = new THREE.MeshStandardMaterial({ map: woodTex, color: '#a5764b', roughness: 0.7 });
   const woodDark = new THREE.MeshStandardMaterial({ map: T.woodTexture('#5a3a20', '#2e1c0d'), color: '#5e3f25', roughness: 0.75 });
@@ -316,7 +316,7 @@ export function buildWorld(): World {
   const sc = sun.shadow.camera as THREE.OrthographicCamera; sc.left = -40; sc.right = 40; sc.top = 40; sc.bottom = -40; sc.near = 1; sc.far = 160; sun.shadow.bias = -0.0008; sun.shadow.normalBias = 0.03; sun.shadow.radius = 4;
   sun.target.position.set(0, 0, -6); add(sun); add(sun.target);
   const hemi = new THREE.HemisphereLight('#ffe1b8', '#46552c', 1.05); add(hemi);
-  const fill = new THREE.DirectionalLight('#ffd8b0', 0.9); fill.position.set(-30, 26, 60); fill.target.position.set(0, 2, 0); add(fill); add(fill.target);
+  const fill = new THREE.DirectionalLight('#ffd8b0', 1.7); fill.position.set(-30, 26, 60); fill.target.position.set(0, 2, 0); add(fill); add(fill.target);
   const ambient = new THREE.AmbientLight('#ffffff', 0.35); add(ambient);
   const sunDisc = new THREE.Object3D(); sunDisc.position.set(-30, 26, -150);
   const sunGlow = new THREE.Sprite(new THREE.SpriteMaterial({ map: T.softDotTexture(), color: '#ffd9a0', transparent: true, opacity: 0.9, blending: THREE.AdditiveBlending, fog: false, depthWrite: false })); sunGlow.position.copy(sunDisc.position); sunGlow.scale.set(60, 60, 1); add(sunGlow);
