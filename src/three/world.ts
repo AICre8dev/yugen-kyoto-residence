@@ -32,7 +32,7 @@ export function buildWorld(): World {
   const tatamiTex = T.tatamiTexture();
   const tatami = new THREE.MeshStandardMaterial({ map: tatamiTex, color: '#d7c98a', roughness: 0.9 });
   const tileTex = T.roofTileTexture(); tileTex.repeat.set(40, 14);
-  const tile = new THREE.MeshStandardMaterial({ map: tileTex, color: '#cfc8c0', roughness: 1 });
+  const tile = new THREE.MeshStandardMaterial({ map: tileTex, color: '#cfc8c0', roughness: 1, side: THREE.DoubleSide });
   const gravelTex = T.gravelTexture(); gravelTex.repeat.set(2, 6);
   const gravel = new THREE.MeshStandardMaterial({ map: gravelTex, color: '#e2dccd', roughness: 1 });
   const mossTex = T.mossTexture(); mossTex.repeat.set(30, 30);
@@ -55,7 +55,7 @@ export function buildWorld(): World {
   const trunkMat = new THREE.MeshStandardMaterial({ map: T.woodTexture('#6b4a2e', '#3d2816'), color: '#7a5a3c', roughness: 0.95 });
   const foliageMats = [0, 1, 2].map(() => new THREE.MeshStandardMaterial({ color: '#c8532a', roughness: 0.9, alphaMap: T.leafTexture(), alphaTest: 0.5, side: THREE.DoubleSide }));
   const shrubMat = new THREE.MeshStandardMaterial({ color: '#6e7b34', roughness: 1, flatShading: true });
-  const snowMat = new THREE.MeshStandardMaterial({ color: '#f4f6f8', roughness: 1, transparent: true, opacity: 0 });
+  const snowMat = new THREE.MeshStandardMaterial({ color: '#f4f6f8', roughness: 1, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false });
   const snowMeshes: THREE.Mesh[] = [];
 
   const box = (w: number, h: number, d: number, m: THREE.Material, x: number, y: number, z: number, shadow = true) => {
