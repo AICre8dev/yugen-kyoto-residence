@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import * as T from './textures';
+import * as A from './art';
 import { makeWater, makeKoi, updateKoi, type Koi } from './water';
 import type { Palette } from './season';
 
@@ -14,6 +15,7 @@ export interface World {
 }
 
 const FLOOR = 0.6, WALL_H = 2.8, TOP = FLOOR + WALL_H;
+let _s = 3; const rndS = () => { _s = (_s * 16807) % 2147483647; return (_s - 1) / 2147483646; };
 
 export function buildWorld(): World {
   const group = new THREE.Group();
@@ -224,8 +226,8 @@ export function buildWorld(): World {
   const teaBowl = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.05, 0.08, 12), ceramic); teaBowl.position.set(-6.3, FLOOR + 0.42, -1.4); add(teaBowl);
   lamp(-6, TOP - 0.7, -1.5, 'pendant', 5);
   // LIVING: table, legless chairs, shelves, blossom branch
-  box(1.8, 0.06, 0.9, black, 6, FLOOR + 0.36, -2); for (const dx of [-0.8, 0.8]) box(0.1, 0.34, 0.8, black, 6 + dx, FLOOR + 0.17, -2);
-  for (const [dx, dz] of [[-1.3, 0], [1.3, 0]]) { box(0.6, 0.1, 0.6, linen, 6 + dx, FLOOR + 0.05, -2 + dz); box(0.6, 0.55, 0.08, hinoki, 6 + dx, FLOOR + 0.35, -2 + dz + (dx < 0 ? -0.3 : 0.3)); }
+  box(1.8, 0.06, 0.9, black, 6, FLOOR + 0.36, -1.2); for (const dx of [-0.8, 0.8]) box(0.1, 0.34, 0.8, black, 6 + dx, FLOOR + 0.17, -1.2);
+  for (const [dx, dz] of [[-1.3, 0], [1.3, 0]]) { box(0.6, 0.1, 0.6, linen, 6 + dx, FLOOR + 0.05, -1.2 + dz); box(0.6, 0.55, 0.08, hinoki, 6 + dx, FLOOR + 0.35, -1.2 + dz + (dx < 0 ? -0.3 : 0.3)); }
   box(2.2, 0.06, 0.4, woodDark, 5.5, FLOOR + 0.9, 2.7); box(2.2, 0.06, 0.4, woodDark, 5.5, FLOOR + 1.5, 2.7); box(1.2, 0.5, 0.45, woodDark, 8.5, FLOOR + 0.25, 2.6);
   const vase2 = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.2, 0.5, 14), ceramic); vase2.position.set(8.6, FLOOR + 0.75, 2.5); vase2.castShadow = true; add(vase2); blossomBranch(8.6, FLOOR + 1.0, 2.5, 1.5);
   lamp(6, TOP - 0.7, -2, 'pendant', 5);
@@ -250,6 +252,89 @@ export function buildWorld(): World {
   const tubBase = new THREE.Mesh(new THREE.CylinderGeometry(1.05, 1.05, 0.05, 32), hinoki); tubBase.position.set(-6.5, FLOOR + 0.03, -17.5); add(tubBase);
   for (let i = 0; i < 12; i++) box(0.1, 2.4, 0.1, new THREE.MeshStandardMaterial({ color: '#6f8a3a', roughness: 0.8 }), -11.6 + 0.35 + i * 0.6, FLOOR + 1.2, -19.5, false);
   lamp(-6.5, TOP - 0.7, -17.5, 'pendant', 4); box(0.8, 0.4, 0.4, hinoki, -4.2, FLOOR + 0.2, -16);
+
+  // ---------- the things that make it special: art, sofa, chest, windows, props ----------
+  const artMat = (tex: THREE.Texture) => new THREE.MeshStandardMaterial({ map: tex, roughness: 0.9, side: THREE.DoubleSide });
+  // six-panel folding screen (byōbu) standing in a zig-zag along a wall
+  function byobu(tex: THREE.Texture, x: number, z: number, width: number, height: number, rotY: number, dir: 1 | -1 = 1) {
+    const panels = 6, pw = width / panels; const gRoot = new THREE.Group(); gRoot.position.set(x, FLOOR + height / 2 + 0.03, z); gRoot.rotation.y = rotY;
+    for (let i = 0; i < panels; i++) {
+      const t = tex.clone(); t.repeat.set(1 / panels, 1); t.offset.set(i / panels, 0); t.needsUpdate = true;
+      const m = new THREE.Mesh(new THREE.PlaneGeometry(pw - 0.01, height), artMat(t));
+      m.position.set(-width / 2 + pw * (i + 0.5), 0, (i % 2 ? 0.12 : 0) * dir); m.rotation.y = (i % 2 ? -0.22 : 0.22) * dir;
+      gRoot.add(m);
+      const frame = new THREE.Mesh(new THREE.BoxGeometry(pw, height + 0.06, 0.03), black); frame.position.copy(m.position); frame.position.z -= 0.02 * dir; frame.rotation.copy(m.rotation); gRoot.add(frame);
+    }
+    add(gRoot); return gRoot;
+  }
+  function hangingScroll(tex: THREE.Texture, x: number, y: number, z: number, w: number, h: number, rotY: number) {
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), artMat(tex)); m.position.set(x, y, z); m.rotation.y = rotY; add(m);
+    const rod = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, w + 0.1, 8), black); rod.rotation.z = Math.PI / 2; rod.rotation.y = rotY; rod.position.set(x, y + h / 2 + 0.02, z); add(rod);
+    const rod2 = rod.clone(); rod2.position.y = y - h / 2 - 0.02; add(rod2);
+  }
+  function wallPanel(tex: THREE.Texture, x: number, y: number, z: number, w: number, h: number, rotY: number) {
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), artMat(tex)); m.position.set(x, y, z); m.rotation.y = rotY; add(m);
+    const f = new THREE.Mesh(new THREE.BoxGeometry(w + 0.08, h + 0.08, 0.03), woodDark); f.position.set(x, y, z); f.rotation.y = rotY; f.translateZ(-0.02); add(f);
+  }
+  const tigerTex = A.tigerScreenTexture(), craneTex = A.craneScreenTexture(), bambooTex = A.bambooInkTexture(), mountainTex = A.mountainScrollTexture(), yugenTex = A.calligraphyPanelTexture('幽玄'), rugTex = A.rugTexture();
+
+  // LIVING ROOM: tiger screen along the north wall, a real sofa facing the garden doors, rug, throw, floor lamp, tea tray
+  byobu(tigerTex, 6.4, -5.5, 6.9, 1.95, 0, 1);
+  const rug = new THREE.Mesh(new THREE.PlaneGeometry(4.2, 3.0), new THREE.MeshStandardMaterial({ map: rugTex, roughness: 1 })); rug.rotation.x = -Math.PI / 2; rug.position.set(6.2, FLOOR + 0.012, -1.6); rug.receiveShadow = true; add(rug);
+  const linenSofa = new THREE.MeshStandardMaterial({ color: '#e6dcc8', roughness: 1 });
+  box(3.0, 0.32, 1.0, woodDark, 6.2, FLOOR + 0.16, -2.5); // sofa base
+  for (let i = 0; i < 3; i++) { const cushion = new THREE.Mesh(new THREE.BoxGeometry(0.94, 0.18, 0.95), linenSofa); cushion.position.set(5.22 + i * 0.98, FLOOR + 0.41, -2.5); cushion.castShadow = true; add(cushion); const backC = new THREE.Mesh(new THREE.BoxGeometry(0.92, 0.5, 0.2), linenSofa); backC.position.set(5.22 + i * 0.98, FLOOR + 0.72, -2.9); backC.rotation.x = -0.12; backC.castShadow = true; add(backC); }
+  box(3.1, 0.62, 0.12, woodDark, 6.2, FLOOR + 0.62, -3.06); // sofa back rail
+  const throwM = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.05, 0.9), indigo); throwM.position.set(7.2, FLOOR + 0.52, -2.45); throwM.rotation.y = 0.15; add(throwM);
+  for (const [dx, col] of [[-0.9, '#2e3a5c'], [0.9, '#b8352a']] as [number, string][]) { const p = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.42, 0.14), new THREE.MeshStandardMaterial({ color: col, roughness: 1 })); p.position.set(6.2 + dx, FLOOR + 0.72, -2.8); p.rotation.x = -0.15; p.rotation.z = dx < 0 ? 0.1 : -0.1; add(p); }
+  const tray = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.03, 0.4), black); tray.position.set(6.0, FLOOR + 0.41, -1.2); add(tray);
+  for (let i = 0; i < 2; i++) { const cup = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.035, 0.07, 12), ceramic); cup.position.set(5.85 + i * 0.22, FLOOR + 0.46, -1.2); add(cup); }
+  const teapot = new THREE.Mesh(new THREE.SphereGeometry(0.09, 14, 10), new THREE.MeshStandardMaterial({ color: '#3a3532', roughness: 0.5 })); teapot.scale.y = 0.75; teapot.position.set(6.2, FLOOR + 0.49, -1.25); add(teapot);
+  lamp(9.2, FLOOR + 1.35, -5.0, 'andon', 4); box(0.1, 1.1, 0.1, woodDark, 9.2, FLOOR + 0.55, -5.0, false);
+  wallPanel(yugenTex, 3.0, FLOOR + 1.85, 2.85, 1.6, 0.8, Math.PI); // 幽玄 over the south wall
+
+  // TEA ROOM: crane screen on the north wall, mountain scroll in the tokonoma, sunken hearth with iron kettle, ikebana
+  byobu(craneTex, -6.5, -5.55, 5.4, 1.7, 0, 1);
+  hangingScroll(mountainTex, -9.84, FLOOR + 1.7, -4.6, 0.5, 1.25, Math.PI / 2);
+  const hearth = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.06, 0.9), black); hearth.position.set(-4.2, FLOOR + 0.02, 0.9); add(hearth);
+  const kettle = new THREE.Mesh(new THREE.SphereGeometry(0.16, 16, 12), new THREE.MeshStandardMaterial({ color: '#26231f', roughness: 0.6, metalness: 0.3 })); kettle.scale.y = 0.8; kettle.position.set(-4.2, FLOOR + 0.18, 0.9); kettle.castShadow = true; add(kettle);
+  const handle = new THREE.Mesh(new THREE.TorusGeometry(0.12, 0.012, 8, 20, Math.PI), brass); handle.position.set(-4.2, FLOOR + 0.3, 0.9); add(handle);
+  const ikebana = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.09, 0.28, 12), ceramic); ikebana.position.set(-9.5, FLOOR + 0.25, -3.9); add(ikebana); branch(-9.5, FLOOR + 0.38, -3.9, 0.8);
+
+  // CORRIDOR: sumi-e bamboo panels on the plaster, a floor runner
+  for (const z of [-2, -6.5, -13]) { wallPanel(bambooTex, 1.28, FLOOR + 1.5, z, 0.7, 1.4, -Math.PI / 2); }
+  const runner = new THREE.Mesh(new THREE.PlaneGeometry(1.0, 16), new THREE.MeshStandardMaterial({ color: '#4a4740', roughness: 1 })); runner.rotation.x = -Math.PI / 2; runner.position.set(0, FLOOR + 0.008, -8.5); add(runner);
+
+  // BEDROOM: tansu chest with brass pulls, round garden window, kimono stand, second andon
+  box(1.4, 0.9, 0.5, woodDark, -9.2, FLOOR + 0.45, -8.2); for (let r = 0; r < 3; r++) for (let cI = 0; cI < 2; cI++) { box(0.62, 0.22, 0.02, wood, -9.2 - 0.34 + cI * 0.68, FLOOR + 0.2 + r * 0.27, -7.94, false); const pull = new THREE.Mesh(new THREE.TorusGeometry(0.035, 0.008, 6, 14), brass); pull.position.set(-9.2 - 0.34 + cI * 0.68, FLOOR + 0.2 + r * 0.27, -7.92); add(pull); }
+  const marumado = new THREE.Mesh(new THREE.RingGeometry(0.62, 0.72, 40), woodDark); marumado.position.set(-11.9, FLOOR + 1.7, -12.2); marumado.rotation.y = Math.PI / 2; add(marumado);
+  const moonGlass = new THREE.Mesh(new THREE.CircleGeometry(0.62, 40), new THREE.MeshStandardMaterial({ color: '#f7e8cc', emissive: '#ffd9a0', emissiveIntensity: 0.6, roughness: 1 })); moonGlass.position.copy(marumado.position); moonGlass.rotation.y = Math.PI / 2; add(moonGlass);
+  for (let i = 0; i < 5; i++) box(0.02, 1.2, 0.02, woodDark, -11.88, FLOOR + 1.7, -12.2 - 0.5 + i * 0.25, false);
+  const kimonoStand = new THREE.Group(); kimonoStand.position.set(-3.0, FLOOR, -12.6);
+  const ks1 = new THREE.Mesh(new THREE.BoxGeometry(0.06, 1.7, 0.06), woodDark); ks1.position.set(-0.6, 0.85, 0); kimonoStand.add(ks1); const ks2 = ks1.clone(); ks2.position.x = 0.6; kimonoStand.add(ks2); const ks3 = new THREE.Mesh(new THREE.BoxGeometry(1.3, 0.05, 0.05), woodDark); ks3.position.set(0, 1.68, 0); kimonoStand.add(ks3);
+  const kimono = new THREE.Mesh(new THREE.PlaneGeometry(1.1, 1.35), new THREE.MeshStandardMaterial({ map: T.indigoTexture(), roughness: 1, side: THREE.DoubleSide })); kimono.position.set(0, 0.98, 0.03); kimonoStand.add(kimono);
+  const obi = new THREE.Mesh(new THREE.PlaneGeometry(1.1, 0.16), new THREE.MeshStandardMaterial({ color: '#c8a45c', roughness: 1, side: THREE.DoubleSide })); obi.position.set(0, 0.95, 0.04); kimonoStand.add(obi);
+  add(kimonoStand);
+  lamp(-8.2, FLOOR + 0.75, -11.6, 'andon', 3); box(0.5, 0.45, 0.5, woodDark, -8.2, FLOOR + 0.22, -11.6);
+
+  // ONSEN: stacked towels, cedar bucket + ladle, stool, stones, hanging scroll
+  for (let i = 0; i < 3; i++) { const towel = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.07, 0.3), linen); towel.position.set(-4.2, FLOOR + 0.44 + i * 0.075, -16); towel.rotation.y = (i - 1) * 0.08; add(towel); }
+  const bucket = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.14, 0.2, 14, 1, true), hinoki); bucket.material = hinoki.clone(); (bucket.material as THREE.MeshStandardMaterial).side = THREE.DoubleSide; bucket.position.set(-8.4, FLOOR + 0.1, -16.2); add(bucket);
+  const ladle = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.5, 6), hinoki); ladle.position.set(-8.3, FLOOR + 0.25, -16.1); ladle.rotation.z = 0.9; add(ladle);
+  box(0.36, 0.22, 0.24, hinoki, -8.0, FLOOR + 0.11, -18.4);
+  for (let i = 0; i < 6; i++) { const st = new THREE.Mesh(new THREE.SphereGeometry(0.09 + rndS() * 0.08, 8, 6), stone); st.scale.y = 0.55; st.position.set(-9.6 + i * 0.35, FLOOR + 0.04, -14.6); add(st); }
+  hangingScroll(A.mountainScrollTexture(), -9.84, FLOOR + 1.7, -17.5, 0.5, 1.25, Math.PI / 2);
+
+  // GENKAN: bench, geta, a 幽玄 panel
+  box(1.1, 0.06, 0.32, hinoki, 2.2, FLOOR + 0.42, 6.6); box(0.06, 0.4, 0.28, hinoki, 1.75, FLOOR + 0.2, 6.6); box(0.06, 0.4, 0.28, hinoki, 2.65, FLOOR + 0.2, 6.6);
+  for (const dx of [-0.12, 0.12]) { box(0.1, 0.03, 0.26, woodDark, 0.6 + dx, FLOOR - 0.18, 7.2); }
+  wallPanel(A.calligraphyPanelTexture('静寂'), 2.85, FLOOR + 1.8, 4.2, 1.2, 0.6, -Math.PI / 2);
+
+  // GATE + PATH: paper chōchin lanterns, a maple by the gate, lily pads on the pond
+  const chochinTex = A.chochinTexture('幽');
+  for (const x of [-1.2, 1.2]) { const l = new THREE.Mesh(new THREE.SphereGeometry(0.2, 16, 12), new THREE.MeshStandardMaterial({ map: chochinTex, emissive: '#ffd9a0', emissiveMap: chochinTex, emissiveIntensity: 0.7, roughness: 1 })); l.scale.y = 1.25; l.position.set(x * 1.3, 2.72, 20.1); add(l); const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.05, 12), black); cap.position.set(x * 1.3, 3.0, 20.1); add(cap); const pl = new THREE.PointLight('#ffc98a', 2.5, 7, 1.8); pl.position.set(x * 1.3, 2.7, 20.1); add(pl); }
+  for (let i = 0; i < 9; i++) { const pad = new THREE.Mesh(new THREE.CircleGeometry(0.16 + rndS() * 0.12, 18, 0.4, Math.PI * 1.8), new THREE.MeshStandardMaterial({ color: '#4f7a3a', roughness: 1, side: THREE.DoubleSide })); pad.rotation.x = -Math.PI / 2; pad.position.set(-3.5 + rndS() * 3, 0.035, -30.2 + rndS() * 1.6); add(pad); }
+
   // stone lanterns + point lights in garden
   const stoneLantern = (x: number, z: number) => { box(0.5, 0.1, 0.5, stone, x, 0.05, z); box(0.22, 1.0, 0.22, stone, x, 0.55, z); box(0.55, 0.12, 0.55, stone, x, 1.1, z); const lb = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.4, 0.42), paper); lb.position.set(x, 1.36, z); add(lb); const cap = new THREE.Mesh(new THREE.ConeGeometry(0.5, 0.35, 4), stone); cap.position.set(x, 1.72, z); cap.rotation.y = Math.PI / 4; add(cap); const l = new THREE.PointLight('#ffc98a', 3, 8, 1.8); l.position.set(x, 1.36, z); add(l); };
   stoneLantern(-3.2, 12.5); stoneLantern(3.4, 11.2); stoneLantern(-4.5, -24); stoneLantern(14.5, -2);
