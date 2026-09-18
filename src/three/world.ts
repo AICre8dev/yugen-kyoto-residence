@@ -282,6 +282,8 @@ export function buildWorld(): World {
   const tigerTex = tigerFallback;
   new THREE.TextureLoader().load('/art/tiger-byobu.jpg', (img) => { img.colorSpace = THREE.SRGBColorSpace; img.anisotropy = 8; tigerPanels.forEach((m, i) => { const t = img.clone(); t.repeat.set(1 / 6, 1); t.offset.set(i / 6, 0); t.needsUpdate = true; (m.material as THREE.MeshStandardMaterial).map = t; (m.material as THREE.MeshStandardMaterial).needsUpdate = true; }); });
   const tigerPanels: THREE.Mesh[] = [];
+  const cranePanels: THREE.Mesh[] = [];
+  new THREE.TextureLoader().load('/art/crane-byobu.jpg', (img) => { img.colorSpace = THREE.SRGBColorSpace; img.anisotropy = 8; cranePanels.forEach((m, i) => { const t = img.clone(); t.repeat.set(1 / 6, 1); t.offset.set(i / 6, 0); t.needsUpdate = true; (m.material as THREE.MeshStandardMaterial).map = t; (m.material as THREE.MeshStandardMaterial).needsUpdate = true; }); });
   const craneTex = A.craneScreenTexture(), bambooTex = A.bambooInkTexture(), mountainTex = A.mountainScrollTexture(), yugenTex = A.calligraphyPanelTexture('幽玄'), rugTex = A.rugTexture();
 
   // LIVING ROOM: tiger screen along the north wall, a real sofa facing the garden doors, rug, throw, floor lamp, tea tray
@@ -300,7 +302,7 @@ export function buildWorld(): World {
   wallPanel(yugenTex, 3.0, FLOOR + 1.85, 2.85, 1.6, 0.8, Math.PI); // 幽玄 over the south wall
 
   // TEA ROOM: crane screen on the north wall, mountain scroll in the tokonoma, sunken hearth with iron kettle, ikebana
-  byobu(craneTex, -6.5, -5.55, 5.4, 1.7, 0, 1);
+  byobu(craneTex, -6.3, -5.5, 5.4, 2.28, 0, 1).children.forEach((c) => { if (c instanceof THREE.Mesh && c.geometry instanceof THREE.PlaneGeometry) cranePanels.push(c); });
   hangingScroll(mountainTex, -9.84, FLOOR + 1.7, -4.6, 0.5, 1.25, Math.PI / 2);
   const hearth = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.06, 0.9), black); hearth.position.set(-4.2, FLOOR + 0.02, 0.9); add(hearth);
   const kettle = new THREE.Mesh(new THREE.SphereGeometry(0.16, 16, 12), new THREE.MeshStandardMaterial({ color: '#26231f', roughness: 0.6, metalness: 0.3 })); kettle.scale.y = 0.8; kettle.position.set(-4.2, FLOOR + 0.18, 0.9); kettle.castShadow = true; add(kettle);

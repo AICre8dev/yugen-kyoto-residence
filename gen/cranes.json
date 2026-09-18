@@ -1,0 +1,23 @@
+[
+  {
+    "created_at": "2026-09-18T04:19:33.876291Z",
+    "display_name": "Nano Banana Pro",
+    "id": "44b95063-a32b-4529-89de-5a3c7775a04f",
+    "job_type": "nano_banana_pro",
+    "min_result_url": "https://d8j0ntlcm91z4.cloudfront.net/user_3Azmu0G1oTzHdmL4BjECPOv1e7x/hf_20260918_041933_44b95063-a32b-4529-89de-5a3c7775a04f_min.webp",
+    "params": {
+      "application": null,
+      "aspect_ratio": "21:9",
+      "batch_size": 1,
+      "height": 1344,
+      "input_image": null,
+      "input_images": [],
+      "prompt": "Japanese byōbu six-panel folding screen painting, Edo period Rinpa / Kanō style: three red-crowned cranes — one standing on a rocky shore, two in graceful flight — beside an old pine tree with twisting branches and clusters of needles, mineral pigment and sumi ink on a gold-leaf ground with drifting gold cloud bands, aged washi texture, faint vertical panel hinge lines; a vertical calligraphy column of four kanji and a small red square seal in the upper right corner; wide panoramic composition, museum photograph of the artwork, even soft lighting, no frame, no border, no watermark",
+      "resolution": "2k",
+      "surface": null,
+      "width": 3168
+    },
+    "result_url": "https://d8j0ntlcm91z4.cloudfront.net/user_3Azmu0G1oTzHdmL4BjECPOv1e7x/hf_20260918_041933_44b95063-a32b-4529-89de-5a3c7775a04f.png",
+    "status": "completed"
+  }
+]
