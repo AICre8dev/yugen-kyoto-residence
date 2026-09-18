@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import * as T from './textures';
 import * as A from './art';
+import { tigerByobu, craneByobu } from './paintings';
 import { makeWater, makeKoi, updateKoi, type Koi } from './water';
 import type { Palette } from './season';
 
@@ -276,14 +277,14 @@ export function buildWorld(): World {
     const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), artMat(tex)); m.position.set(x, y, z); m.rotation.y = rotY; add(m);
     const f = new THREE.Mesh(new THREE.BoxGeometry(w + 0.08, h + 0.08, 0.03), woodDark); f.position.set(x, y, z); f.rotation.y = rotY; f.translateZ(-0.02); add(f);
   }
-  // The tiger is a real painting (public/art/tiger-byobu.jpg, Higgsfield nano_banana_pro); the procedural
+  // The tiger is a real painting (paintings.ts, Higgsfield nano_banana_pro); the procedural
   // one stays as the fallback until the image arrives or if it fails to load.
   const tigerFallback = A.tigerScreenTexture();
   const tigerTex = tigerFallback;
-  new THREE.TextureLoader().load('/art/tiger-byobu.jpg', (img) => { img.colorSpace = THREE.SRGBColorSpace; img.anisotropy = 8; tigerPanels.forEach((m, i) => { const t = img.clone(); t.repeat.set(1 / 6, 1); t.offset.set(i / 6, 0); t.needsUpdate = true; (m.material as THREE.MeshStandardMaterial).map = t; (m.material as THREE.MeshStandardMaterial).needsUpdate = true; }); });
+  new THREE.TextureLoader().load(tigerByobu, (img) => { img.colorSpace = THREE.SRGBColorSpace; img.anisotropy = 8; tigerPanels.forEach((m, i) => { const t = img.clone(); t.repeat.set(1 / 6, 1); t.offset.set(i / 6, 0); t.needsUpdate = true; (m.material as THREE.MeshStandardMaterial).map = t; (m.material as THREE.MeshStandardMaterial).needsUpdate = true; }); });
   const tigerPanels: THREE.Mesh[] = [];
   const cranePanels: THREE.Mesh[] = [];
-  new THREE.TextureLoader().load('/art/crane-byobu.jpg', (img) => { img.colorSpace = THREE.SRGBColorSpace; img.anisotropy = 8; cranePanels.forEach((m, i) => { const t = img.clone(); t.repeat.set(1 / 6, 1); t.offset.set(i / 6, 0); t.needsUpdate = true; (m.material as THREE.MeshStandardMaterial).map = t; (m.material as THREE.MeshStandardMaterial).needsUpdate = true; }); });
+  new THREE.TextureLoader().load(craneByobu, (img) => { img.colorSpace = THREE.SRGBColorSpace; img.anisotropy = 8; cranePanels.forEach((m, i) => { const t = img.clone(); t.repeat.set(1 / 6, 1); t.offset.set(i / 6, 0); t.needsUpdate = true; (m.material as THREE.MeshStandardMaterial).map = t; (m.material as THREE.MeshStandardMaterial).needsUpdate = true; }); });
   const craneTex = A.craneScreenTexture(), bambooTex = A.bambooInkTexture(), mountainTex = A.mountainScrollTexture(), yugenTex = A.calligraphyPanelTexture('幽玄'), rugTex = A.rugTexture();
 
   // LIVING ROOM: tiger screen along the north wall, a real sofa facing the garden doors, rug, throw, floor lamp, tea tray
