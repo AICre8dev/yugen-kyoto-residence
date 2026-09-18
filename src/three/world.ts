@@ -276,10 +276,16 @@ export function buildWorld(): World {
     const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), artMat(tex)); m.position.set(x, y, z); m.rotation.y = rotY; add(m);
     const f = new THREE.Mesh(new THREE.BoxGeometry(w + 0.08, h + 0.08, 0.03), woodDark); f.position.set(x, y, z); f.rotation.y = rotY; f.translateZ(-0.02); add(f);
   }
-  const tigerTex = A.tigerScreenTexture(), craneTex = A.craneScreenTexture(), bambooTex = A.bambooInkTexture(), mountainTex = A.mountainScrollTexture(), yugenTex = A.calligraphyPanelTexture('幽玄'), rugTex = A.rugTexture();
+  // The tiger is a real painting (public/art/tiger-byobu.jpg, Higgsfield nano_banana_pro); the procedural
+  // one stays as the fallback until the image arrives or if it fails to load.
+  const tigerFallback = A.tigerScreenTexture();
+  const tigerTex = tigerFallback;
+  new THREE.TextureLoader().load('/art/tiger-byobu.jpg', (img) => { img.colorSpace = THREE.SRGBColorSpace; img.anisotropy = 8; tigerPanels.forEach((m, i) => { const t = img.clone(); t.repeat.set(1 / 6, 1); t.offset.set(i / 6, 0); t.needsUpdate = true; (m.material as THREE.MeshStandardMaterial).map = t; (m.material as THREE.MeshStandardMaterial).needsUpdate = true; }); });
+  const tigerPanels: THREE.Mesh[] = [];
+  const craneTex = A.craneScreenTexture(), bambooTex = A.bambooInkTexture(), mountainTex = A.mountainScrollTexture(), yugenTex = A.calligraphyPanelTexture('幽玄'), rugTex = A.rugTexture();
 
   // LIVING ROOM: tiger screen along the north wall, a real sofa facing the garden doors, rug, throw, floor lamp, tea tray
-  byobu(tigerTex, 6.4, -5.5, 6.9, 1.95, 0, 1);
+  byobu(tigerTex, 6.6, -5.5, 5.6, 2.25, 0, 1).children.forEach((c) => { if (c instanceof THREE.Mesh && c.geometry instanceof THREE.PlaneGeometry) tigerPanels.push(c); });
   const rug = new THREE.Mesh(new THREE.PlaneGeometry(4.2, 3.0), new THREE.MeshStandardMaterial({ map: rugTex, roughness: 1 })); rug.rotation.x = -Math.PI / 2; rug.position.set(6.2, FLOOR + 0.012, -1.6); rug.receiveShadow = true; add(rug);
   const linenSofa = new THREE.MeshStandardMaterial({ color: '#e6dcc8', roughness: 1 });
   box(3.0, 0.32, 1.0, woodDark, 6.2, FLOOR + 0.16, -2.5); // sofa base

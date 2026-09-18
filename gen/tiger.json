@@ -1,0 +1,23 @@
+[
+  {
+    "created_at": "2026-09-18T03:48:01.61842Z",
+    "display_name": "Nano Banana Pro",
+    "id": "05e1efbd-3915-472c-8728-9abaf77e0fa1",
+    "job_type": "nano_banana_pro",
+    "min_result_url": "https://d8j0ntlcm91z4.cloudfront.net/user_3Azmu0G1oTzHdmL4BjECPOv1e7x/hf_20260918_034801_05e1efbd-3915-472c-8728-9abaf77e0fa1_min.webp",
+    "params": {
+      "application": null,
+      "aspect_ratio": "21:9",
+      "batch_size": 1,
+      "height": 1344,
+      "input_image": null,
+      "input_images": [],
+      "prompt": "Japanese byōbu six-panel folding screen painting, Edo period Kanō school: a magnificent tiger crouching low on a mossy rock among bamboo stalks, turning its head toward the viewer with piercing amber eyes, fur rendered in fine mineral pigment and sumi ink brushwork, black stripes with soft gradations, whiskers and individual hairs visible; gold-leaf ground with drifting gold cloud bands (kinpun kumo), aged washi paper texture and faint panel hinge lines; a vertical calligraphy column of four kanji and a small red square seal in the upper left corner; wide panoramic composition with the tiger in the lower two-thirds, museum photograph of the artwork, even soft lighting, no frame, no border, no watermark",
+      "resolution": "2k",
+      "surface": null,
+      "width": 3168
+    },
+    "result_url": "https://d8j0ntlcm91z4.cloudfront.net/user_3Azmu0G1oTzHdmL4BjECPOv1e7x/hf_20260918_034801_05e1efbd-3915-472c-8728-9abaf77e0fa1.png",
+    "status": "completed"
+  }
+]
